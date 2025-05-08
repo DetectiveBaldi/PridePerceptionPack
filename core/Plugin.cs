@@ -13,7 +13,7 @@ namespace PridePerception.core
 {
     [BepInDependency("mtm101.rulerp.bbplus.baldidevapi")]
     [BepInDependency("mtm101.rulerp.baldiplus.leveleditor", BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInPlugin("detectivebaldi.pluspacks.prideperception", "Pride Perception Pack", "1.0.0.0")]
+    [BepInPlugin("detectivebaldi.pluspacks.prideperception", "Pride Perception Pack", "1.1.0.0")]
     public class Plugin : BaseUnityPlugin
     {
         public static Plugin current;

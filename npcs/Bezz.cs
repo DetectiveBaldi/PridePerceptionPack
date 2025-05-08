@@ -149,13 +149,11 @@ namespace PridePerception.npcs
             {
                 Flag flag = flags[i];
 
-                flag.transform.localPosition += Vector3.down * 7.85f;
-
                 UnityEngine.Object.Destroy(flag.GetComponent<BoxCollider>());
 
                 MapMarkerUtil.Dispose(ec.map, flag.mapMarker);
 
-                flag.onMovementFinished = () => DisposeFlag(flag);
+                flag.tweenOut();
             }
 
             timerGauge.Deactivate();
@@ -180,7 +178,7 @@ namespace PridePerception.npcs
 
             MapMarkerUtil.Dispose(ec.map, flag.mapMarker);
 
-            UnityEngine.Object.Destroy(flag._gameObject);
+            UnityEngine.Object.Destroy(flag.renderer);
         }
 
         public void DisposeFlags()
@@ -204,13 +202,11 @@ namespace PridePerception.npcs
             {
                 Flag _flag = flags[i];
 
-                _flag.transform.localPosition += Vector3.down * 7.85f;
-
                 UnityEngine.Object.Destroy(_flag.GetComponent<BoxCollider>());
 
                 MapMarkerUtil.Dispose(ec.map, _flag.mapMarker);
 
-                _flag.onMovementFinished = () => DisposeFlag(_flag);
+                _flag.tweenOut();
             }
 
             timerGauge.Deactivate();
@@ -443,11 +439,11 @@ namespace PridePerception.npcs
 
             CoreGameManager coregm = Singleton<CoreGameManager>.Instance;
 
-            int sceneIndex = Math.Max(coregm.sceneObject.levelNo, 1);
+            int multiplier = Math.Max(coregm.sceneObject.levelNo, 0) + 1;
 
-            for (int i = 0; i < 15.0f * sceneIndex; i++)
+            for (int i = 0; i < 15.0f * multiplier; i++)
             {
-                if (cells.Count < sceneIndex)
+                if (cells.Count < multiplier)
                     break;
 
                 Cell cell = cells[UnityEngine.Random.Range(0, cells.Count)];
@@ -460,19 +456,15 @@ namespace PridePerception.npcs
                     flagType = UnityEngine.Random.Range(0, 5);
 
                 Flag flag = bezz.LoadFlag(cell, flagType);
-
-                flag.gameObject.transform.localPosition += Vector3.up * 3.85f;
             }
 
-            for (int i = 0; i < sceneIndex; i++)
+            for (int i = 0; i < multiplier; i++)
             {
                 Cell cell = cells[UnityEngine.Random.Range(0, cells.Count)];
 
                 cells.Remove(cell);
 
                 Flag flag = bezz.LoadFlag(cell, bezz.flagType);
-
-                flag.gameObject.transform.localPosition += Vector3.up * 3.85f;
             }
 
             coregm.audMan.PlaySingle(SoundObjectUtil.fromName("CashBell"));
@@ -569,9 +561,11 @@ namespace PridePerception.npcs
 
         public MapMarker mapMarker;
 
-        public GameObject _gameObject;
+        public GameObject renderer;
 
-        public Action onMovementFinished;
+        public IEnumerator tween;
+
+        public Action onTweenFinished;
 
         public Flag Initialize(Bezz _bezz, Cell _cell, int _flagType)
         {
@@ -593,19 +587,19 @@ namespace PridePerception.npcs
 
             ((SpriteRenderer) ReflectionHelpers.ReflectionGetVariable(mapMarker, "environmentMarker")).transform.localPosition += Vector3.up * 4.105f;
 
-            _gameObject = new();
+            renderer = new();
 
-            _gameObject.layer = LayerMask.NameToLayer("Billboard");
+            renderer.layer = LayerMask.NameToLayer("Billboard");
 
-            _gameObject.transform.localPosition = gameObject.transform.localPosition;
+            renderer.transform.localPosition = gameObject.transform.localPosition;
 
-            SpriteRenderer spriteRenderer = _gameObject.AddComponent<SpriteRenderer>();
+            SpriteRenderer spriteRenderer = renderer.AddComponent<SpriteRenderer>();
 
             spriteRenderer.sprite = Plugin.current.assets.Get<Sprite>("Images/npcs/Bezz/Flag/" + flagType + "0");
 
             spriteRenderer.material = ObjectCreators.SpriteMaterial;
 
-            CustomSpriteAnimator animator = _gameObject.AddComponent<CustomSpriteAnimator>();
+            CustomSpriteAnimator animator = renderer.AddComponent<CustomSpriteAnimator>();
 
             animator.spriteRenderer = spriteRenderer;
 
@@ -620,7 +614,7 @@ namespace PridePerception.npcs
 
             animator.SetDefaultAnimation("idle", 1.0f);
 
-            onMovementFinished = () => {};
+            tweenIn();
 
             return this;
         }
@@ -629,14 +623,6 @@ namespace PridePerception.npcs
         {
             if (mapMarker != null)
                 mapMarker.ShowMarker(Singleton<CoreGameManager>.Instance.GetCamera(0).QuickMapAvailable);
-
-            if (gameObject != null && _gameObject != null)
-            {
-                _gameObject.transform.localPosition = Vector3.MoveTowards(_gameObject.transform.localPosition, gameObject.transform.localPosition, 10.0f * Time.deltaTime);
-
-                if (Vector3.Distance(_gameObject.transform.localPosition, gameObject.transform.localPosition) == 0.0f)
-                    onMovementFinished();
-            }
         }
 
         public void Clicked(int pm)
@@ -662,6 +648,58 @@ namespace PridePerception.npcs
         public bool ClickableRequiresNormalHeight()
         {
             return false;
+        }
+
+        public void resetTweenCoroutine()
+        {
+            if (tween != null)
+            {
+                StopCoroutine(tween);
+
+                tween = null;
+            }
+
+            onTweenFinished = null;
+
+            tween = startTween();
+
+            StartCoroutine(tween);
+        }
+
+        public IEnumerator startTween()
+        {
+            while (Vector3.Distance(renderer.transform.localPosition, gameObject.transform.localPosition) != 0.0f)
+            {
+                renderer.transform.localPosition = Vector3.MoveTowards(renderer.transform.localPosition, gameObject.transform.localPosition,
+                    10.0f * Time.deltaTime);
+
+                yield return null;
+            }
+
+            tween = null;
+
+            if (onTweenFinished != null)
+            {
+                onTweenFinished.Invoke();
+
+                onTweenFinished = null;
+            }
+        }
+
+        public void tweenIn()
+        {
+            gameObject.transform.localPosition += Vector3.up * 3.85f;
+
+            resetTweenCoroutine();
+        }
+
+        public void tweenOut()
+        {
+            transform.localPosition += Vector3.down * 7.85f;
+
+            resetTweenCoroutine();
+
+            onTweenFinished = () => bezz.DisposeFlag(this);
         }
     }
 }
