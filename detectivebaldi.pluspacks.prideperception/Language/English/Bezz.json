@@ -1,0 +1,69 @@
+{
+    "items": [
+        {
+            "key": "bezzPriPosterTitle",
+
+            "value": "Bezz"
+        },
+
+        {
+            "key": "bezzPriPosterDesc",
+
+            "value": "A proud LGBTQ+ rights activist! Always keeps a ton of flags on them, but always seems to lose them..."
+        },
+
+        {
+            "key": "bezzTarget0",
+
+            "value": "Hey, you!"
+        },
+
+        {
+            "key": "bezzTarget1",
+
+            "value": "... I need your help!"
+        },
+
+        {
+            "key": "bezzPrompt0",
+
+            "value": "Can you find THIS pride flag for me?"
+        },
+
+        {
+            "key": "bezzPrompt1",
+
+            "value": "... Thanks!"
+        },
+
+        {
+            "key": "bezzActivityWin0",
+
+            "value": "Thanks!"
+        },
+
+        {
+            "key": "bezzActivityWin1",
+
+            "value": "... Have this item for your troubles."
+        },
+
+        {
+            "key": "bezzActivityLoss0",
+
+            "value": "You didn't GET it?"
+        },
+
+        {
+            "key": "bezzActivityLoss1",
+
+            "value": "... Well,"
+        },
+
+        {
+            "key": "bezzActivityLoss2",
+
+            "value": "... Looks like I'll have to take THESE with me then..."
+        }
+    ]
+}
