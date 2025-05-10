@@ -126,8 +126,7 @@ namespace PridePerception.npcs
 
             CoreGameManager coregm = Singleton<CoreGameManager>.Instance;
 
-            timerGauge = coregm.GetHud(coregm.GetPlayer(0).playerNumber).gaugeManager.
-               ActivateNewGauge(Plugin.current.assets.Get<Sprite>("Images/npcs/Bezz/Flag/3dflag" + flagType), totalTime);
+            timerGauge = coregm.GetHud(0).gaugeManager.ActivateNewGauge(Plugin.current.assets.Get<Sprite>("Images/npcs/Bezz/Flag/3dflag" + flagType), totalTime);
 
             while (timeLeft > 0.0f)
             {
@@ -211,17 +210,19 @@ namespace PridePerception.npcs
 
         public void WinSequence()
         {
-            audio.FlushQueue(true);
-
             behaviorStateMachine.ChangeState(new BezzCheckState(this, new NavigationState_DoNothing(this, 62), true));
 
             CoreGameManager coregm = Singleton<CoreGameManager>.Instance;
 
-            coregm.AddPoints(50, 0, true);
+            PlayerManager pm = coregm.GetPlayer(0);
+
+            bool spawnItem = pm.itm.Has(Items.None);
+
+            coregm.AddPoints(spawnItem ? 50 : 75, 0, true);
 
             MusicManager musicManager = Singleton<MusicManager>.Instance;
 
-            MidiFilePlayer midiFilePlayer = (MidiFilePlayer)ReflectionHelpers.ReflectionGetVariable(musicManager, "midiPlayer");
+            MidiFilePlayer midiFilePlayer = (MidiFilePlayer) ReflectionHelpers.ReflectionGetVariable(musicManager, "midiPlayer");
 
             if (midiFilePlayer.MPTK_MidiName.Contains("FlagCatch"))
             {
@@ -230,31 +231,31 @@ namespace PridePerception.npcs
                 musicManager.PlayMidi(Plugin.current.assets.Get<string>("Midis/npcs/Bezz/FlagCatchEnd0"), false);
             }
 
-            ItemMetaStorage itemMetaStorage = ItemMetaStorage.Instance;
+            if (spawnItem)
+            {
+                ItemMetaStorage itemMetaStorage = ItemMetaStorage.Instance;
 
-            List<WeightedItemObject> foodItems =
-            [
-                new() { selection = itemMetaStorage.FindByEnum(Items.ZestyBar).value , weight = 100 },
+                List<WeightedItemObject> foodItems =
+                [
+                    new() { selection = itemMetaStorage.FindByEnum(Items.ZestyBar).value , weight = 100 },
 
-                new() { selection = itemMetaStorage.FindByEnum(Items.NanaPeel).value , weight = 75 },
+                    new() { selection = itemMetaStorage.FindByEnum(Items.NanaPeel).value , weight = 75 },
 
-                new() { selection = itemMetaStorage.FindByEnum(Items.DietBsoda).value , weight = 45 },
+                    new() { selection = itemMetaStorage.FindByEnum(Items.DietBsoda).value , weight = 45 },
 
-                new() { selection = itemMetaStorage.FindByEnum(Items.Bsoda).value , weight = 25 },
+                    new() { selection = itemMetaStorage.FindByEnum(Items.Bsoda).value , weight = 25 },
 
-                new() { selection = itemMetaStorage.FindByEnum(Items.Apple).value , weight = 5 }
-            ];
+                    new() { selection = itemMetaStorage.FindByEnum(Items.Apple).value , weight = 5 }
+                ];
 
-            Vector3 lPosition = coregm.GetPlayer(0).transform.localPosition;
+                Vector3 lPosition = pm.transform.localPosition;
 
-            ec.CreateItem(ec.CellFromPosition(lPosition).room, WeightedSelection<ItemObject>.RandomSelection([.. foodItems]),
-                new(lPosition.x, lPosition.z));
+                ec.CreateItem(ec.CellFromPosition(lPosition).room, WeightedSelection<ItemObject>.RandomSelection([.. foodItems]), new(lPosition.x, lPosition.z));
+            }
         }
 
         public void LossSequence()
         {
-            audio.FlushQueue(true);
-
             behaviorStateMachine.ChangeState(new BezzCheckState(this, new NavigationState_DoNothing(this, 62), false));
 
             Singleton<CoreGameManager>.Instance.AddPoints(-100, 0, true);
@@ -520,7 +521,13 @@ namespace PridePerception.npcs
             {
                 bezz.audio.QueueAudio(Plugin.current.assets.Get<SoundObject>("Sounds/npcs/Bezz/bezzActivityWin0"));
 
-                bezz.audio.QueueAudio(Plugin.current.assets.Get<SoundObject>("Sounds/npcs/Bezz/bezzActivityWin1"));
+                CoreGameManager coregm = Singleton<CoreGameManager>.Instance;
+
+                PlayerManager pm = coregm.GetPlayer(0);
+
+                bool spawnItem = pm.itm.Has(Items.None);
+
+                bezz.audio.QueueAudio(Plugin.current.assets.Get<SoundObject>("Sounds/npcs/Bezz/bezzActivityWin1" + (spawnItem ? "" : "Alt")));
             }
             else
             {

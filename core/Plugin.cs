@@ -13,7 +13,7 @@ namespace PridePerception.core
 {
     [BepInDependency("mtm101.rulerp.bbplus.baldidevapi")]
     [BepInDependency("mtm101.rulerp.baldiplus.leveleditor", BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInPlugin("detectivebaldi.pluspacks.prideperception", "Pride Perception Pack", "1.1.1.0")]
+    [BepInPlugin("detectivebaldi.pluspacks.prideperception", "Pride Perception Pack", "1.2.1.0")]
     public class Plugin : BaseUnityPlugin
     {
         public static Plugin current;
@@ -105,6 +105,8 @@ namespace PridePerception.core
             assets.Add<SoundObject>("Sounds/npcs/Bezz/bezzActivityWin0", ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "Sounds", "npcs", "Bezz", "bezzActivityWin0.wav"), "bezzActivityWin0", SoundType.Voice, new Color(1.0f, 0.5f, 0.0f)));
 
             assets.Add<SoundObject>("Sounds/npcs/Bezz/bezzActivityWin1", ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "Sounds", "npcs", "Bezz", "bezzActivityWin1.wav"), "bezzActivityWin1", SoundType.Voice, new Color(1.0f, 0.5f, 0.0f)));
+
+            assets.Add<SoundObject>("Sounds/npcs/Bezz/bezzActivityWin1Alt", ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "Sounds", "npcs", "Bezz", "bezzActivityWin1Alt.wav"), "bezzActivityWin1Alt", SoundType.Voice, new Color(1.0f, 0.5f, 0.0f)));
 
             assets.Add<SoundObject>("Sounds/npcs/Bezz/bezzActivityLoss0", ObjectCreators.CreateSoundObject(AssetLoader.AudioClipFromMod(this, "Sounds", "npcs", "Bezz", "bezzActivityLoss0.wav"), "bezzActivityLoss0", SoundType.Voice, new Color(1.0f, 0.5f, 0.0f)));
 
