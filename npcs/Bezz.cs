@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-#nullable disable
 namespace PridePerception.npcs
 {
     public class Bezz : NPC
@@ -54,7 +53,7 @@ namespace PridePerception.npcs
 
             MusicManager musicManager = Singleton<MusicManager>.Instance;
 
-            MidiFilePlayer midiFilePlayer = (MidiFilePlayer) ReflectionHelpers.ReflectionGetVariable(musicManager, "midiPlayer");
+            MidiFilePlayer midiFilePlayer = (MidiFilePlayer)ReflectionHelpers.ReflectionGetVariable(musicManager, "midiPlayer");
 
             if (midiFilePlayer.MPTK_MidiName.Contains("FlagCatch"))
                 musicManager.StopMidi();
@@ -108,7 +107,7 @@ namespace PridePerception.npcs
             for (int i = 0; i < 2.0f; i++)
                 upsetTalkSprites = upsetTalkSprites.AddToArray(Plugin.current.assets.Get<Sprite>("Images/npcs/Bezz/bezzUpsetTalk" + i));
 
-            animator.animations.Add("upsetTalk", new([.. upsetTalkSprites], 0.1f));
+            animator.animations.Add("upsetTalk", new(upsetTalkSprites, 0.1f));
 
             animator.Play("idle", 1.0f);
 
@@ -119,7 +118,7 @@ namespace PridePerception.npcs
         {
             MusicManager musicManager = Singleton<MusicManager>.Instance;
 
-            MidiFilePlayer midiFilePlayer = (MidiFilePlayer) ReflectionHelpers.ReflectionGetVariable(musicManager, "midiPlayer");
+            MidiFilePlayer midiFilePlayer = (MidiFilePlayer)ReflectionHelpers.ReflectionGetVariable(musicManager, "midiPlayer");
 
             float totalTime = Mathf.Ceil(midiFilePlayer.MPTK_DurationMS * 0.001f);
 
@@ -148,8 +147,6 @@ namespace PridePerception.npcs
             for (int i = 0; i < flags.Count; i++)
             {
                 Flag flag = flags[i];
-
-                UnityEngine.Object.Destroy(flag.GetComponent<BoxCollider>());
 
                 MapMarkerUtil.Dispose(ec.map, flag.mapMarker);
 
@@ -202,8 +199,6 @@ namespace PridePerception.npcs
             {
                 Flag _flag = flags[i];
 
-                UnityEngine.Object.Destroy(_flag.GetComponent<BoxCollider>());
-
                 MapMarkerUtil.Dispose(ec.map, _flag.mapMarker);
 
                 _flag.tweenOut();
@@ -226,7 +221,7 @@ namespace PridePerception.npcs
 
             MusicManager musicManager = Singleton<MusicManager>.Instance;
 
-            MidiFilePlayer midiFilePlayer = (MidiFilePlayer) ReflectionHelpers.ReflectionGetVariable(musicManager, "midiPlayer");
+            MidiFilePlayer midiFilePlayer = (MidiFilePlayer)ReflectionHelpers.ReflectionGetVariable(musicManager, "midiPlayer");
 
             if (midiFilePlayer.MPTK_MidiName.Contains("FlagCatch"))
             {
@@ -266,7 +261,7 @@ namespace PridePerception.npcs
 
             MusicManager musicManager = Singleton<MusicManager>.Instance;
 
-            MidiFilePlayer midiFilePlayer = (MidiFilePlayer) ReflectionHelpers.ReflectionGetVariable(musicManager, "midiPlayer");
+            MidiFilePlayer midiFilePlayer = (MidiFilePlayer)ReflectionHelpers.ReflectionGetVariable(musicManager, "midiPlayer");
 
             if (midiFilePlayer.MPTK_MidiName.Contains("FlagCatch"))
             {
@@ -435,7 +430,7 @@ namespace PridePerception.npcs
 
             bezz.flagType = UnityEngine.Random.Range(0, 5);
 
-            List<Cell> cells = [ .. bezz.ec.AllTilesNoGarbage(false, false).Where(cell => cell.room.category == RoomCategory.Hall) ];
+            List<Cell> cells = [.. bezz.ec.AllTilesNoGarbage(false, false).Where(cell => cell.room.category == RoomCategory.Hall)];
 
             CoreGameManager coregm = Singleton<CoreGameManager>.Instance;
 
@@ -443,7 +438,7 @@ namespace PridePerception.npcs
 
             for (int i = 0; i < 15.0f * multiplier; i++)
             {
-                if (cells.Count < multiplier)
+                if (cells.Count <= multiplier)
                     break;
 
                 Cell cell = cells[UnityEngine.Random.Range(0, cells.Count)];
@@ -460,6 +455,9 @@ namespace PridePerception.npcs
 
             for (int i = 0; i < multiplier; i++)
             {
+                if (cells.Count == 0.0)
+                    break;
+
                 Cell cell = cells[UnityEngine.Random.Range(0, cells.Count)];
 
                 cells.Remove(cell);
@@ -585,7 +583,7 @@ namespace PridePerception.npcs
 
             boxCollider.size = new(3.5f, 10.0f, 3.5f);
 
-            ((SpriteRenderer) ReflectionHelpers.ReflectionGetVariable(mapMarker, "environmentMarker")).transform.localPosition += Vector3.up * 4.105f;
+            ((SpriteRenderer)ReflectionHelpers.ReflectionGetVariable(mapMarker, "environmentMarker")).transform.localPosition += Vector3.up * 4.105f;
 
             renderer = new();
 
@@ -627,7 +625,8 @@ namespace PridePerception.npcs
 
         public void Clicked(int pm)
         {
-            bezz.CheckFlag(this);
+            if (tween == null)
+                bezz.CheckFlag(this);
         }
 
         public void ClickableSighted(int pm)
@@ -642,7 +641,7 @@ namespace PridePerception.npcs
 
         public bool ClickableHidden()
         {
-            return false;
+            return tween != null;
         }
 
         public bool ClickableRequiresNormalHeight()
